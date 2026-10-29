@@ -144,6 +144,29 @@ h3,.wt{font-family:Westhorn,Georgia,serif;font-weight:normal;letter-spacing:.8px
 .grid .tile.r4{outline:3px dashed #7a1a1055;outline-offset:-8px}
 .wanted-card{background:#f3dfae;border:4px double #5a2a10;text-align:center;padding:6px;box-shadow:inset 0 0 24px #a0703a88}
 .wanted-card b{font-family:Westhorn,Georgia,serif;font-weight:normal;font-size:26px;color:#7a1a10;display:block;letter-spacing:3px}
+
+/* v6 */
+.cmp{display:flex;gap:6px}.cmp .icard{flex:1;min-width:0}
+.icard{background:#f3e3bf;border:3px solid #8a6a3a;border-radius:10px;padding:5px;margin:4px 0;box-shadow:inset 0 0 0 2px #fff3}
+.icard.r1{border-color:#3fae3f}.icard.r2{border-color:#2f7fe0}.icard.r3{border-color:#a040e0;box-shadow:0 0 8px #a040e088}.icard.r4{border-color:#f0a020;box-shadow:0 0 12px #f0a020aa}
+.ilab{font:bold 10px Georgia,serif;text-transform:uppercase;color:#7a5a30;letter-spacing:1px}
+.ihd{display:flex;gap:5px;align-items:center}.ihd img{width:40px;height:40px;object-fit:contain;flex:none}.ihd b{display:block;font:bold 13px/1.1 Georgia,serif}.ihd small{font:11px Georgia,serif;color:#5a4020}
+.ibody{margin-top:3px}.srw{display:flex;justify-content:space-between;gap:3px;font:12px/1.35 Georgia,serif;color:#3a2810;border-top:1px dotted #b99a66}
+.srw span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.srw b{white-space:nowrap}.srw.base b{color:#000}
+.srw em{font-style:normal;font-size:10px;margin-left:2px}.srw em.up{color:#1f8a1f}.srw em.dn{color:#c0281a}
+.srw.nw{background:#ffe27a88;border-radius:3px}.srw.nw i{font:bold 8px Georgia;background:#d4a017;color:#fff;padding:0 3px;border-radius:3px;font-style:normal}
+.srw.gone{opacity:.75}.pchg{text-align:center;font:20px Westhorn,Georgia,serif;margin:4px 0}.pchg.up{color:#1f8a1f}.pchg.dn{color:#c0281a}
+.b2{display:flex;gap:6px}.b2 .btn{flex:1;font-size:14px}.asold{background:#c0281a;color:#fff;text-align:center;border-radius:6px;font:bold 12px Georgia;padding:3px}
+.st2 .srw{font-size:13px}.stb{width:auto!important;display:inline-block;padding:2px 8px!important;margin:0!important;font-size:12px!important}
+.dmg.hl{color:#4cff5a!important;font-size:18px}.dmg.ms{color:#e8e8e8!important;font-size:20px}.dmg.bk{color:#8fd0ff!important;font-size:19px}
+.chatstrip{cursor:pointer}
+#csheet{position:fixed;left:0;right:0;bottom:0;height:62dvh;max-height:62vh;z-index:60;background:#2a1a0c;border-top:4px solid #c9a24a;border-radius:16px 16px 0 0;display:flex;flex-direction:column;transform:translateY(105%);transition:transform .25s;box-shadow:0 -6px 20px #000a;max-width:520px;margin:auto}
+#csheet.open{transform:none}.chd{display:flex;gap:6px;padding:6px}.ctab{flex:1;font:16px Westhorn,Georgia,serif;background:#5a3a1a;color:#f3e3bf;border:2px solid #8a6a3a;border-radius:8px;padding:5px}
+.ctab.on{background:#c9a24a;color:#2a1a0c}.cx{background:none;border:0;color:#f3e3bf;font-size:20px;width:36px}
+#clist{flex:1;overflow-y:auto;padding:4px 10px;font:14px/1.35 Georgia,serif;color:#f3e3bf}.cm{margin:3px 0}.cm.me{text-align:right}
+#ctype{height:18px;padding:0 10px;font:12px Georgia;color:#c9a24a}.dots i{display:inline-block;width:4px;height:4px;margin-left:2px;background:#c9a24a;border-radius:50%;animation:dt 1s infinite}.dots i:nth-child(2){animation-delay:.2s}.dots i:nth-child(3){animation-delay:.4s}
+@keyframes dt{50%{opacity:.2}}.cfm{display:flex;gap:6px;padding:6px 8px calc(8px + env(safe-area-inset-bottom))}.cfm input{flex:1;font:16px Georgia;padding:7px;border-radius:8px;border:2px solid #8a6a3a;background:#f3e3bf;min-width:0}.cfm .btn{width:auto;margin:0}
+.cnone{text-align:center;padding:20px}
 </style></head><body>
 <div id="top"><div class="av" id="av"></div>
 <div class="pill ol"><img id="icash"><b id="gd"></b></div><div class="pill ol"><img id="idia"><b id="gm"></b></div><button id="mute" onclick="toggleMute()">🔊</button><div class="pill ol"><img id="icrate"><b><span id="hm"></span>/<span id="hmax"></span></b></div></div>
@@ -193,11 +216,10 @@ const hmax=()=>40+S.forgeLvl*5,upCost=()=>Math.round(120*Math.pow(1.55,S.forgeLv
 function rarW(){return BASEW.map((w,i)=>i==0?Math.max(100,w-S.forgeLvl*40):w*(1+S.forgeLvl*.25*i))}
 function rollRar(){const w=rarW(),t=w.reduce((a,b)=>a+b);let r=Math.random()*t;for(let i=0;i<5;i++){if((r-=w[i])<0)return i}return 0}
 const ADJ=['Smooth','Dapper','Crooked','Golden','Midnight','Velvet','Lucky','Iron'];
-function makeItem(){const slot=pick(SLOTS),r=rollRar(),lv=S.best+rnd(0,3),m=RMUL[r]*(1+lv*.3),ic=pick(ICON[slot]);
+function makeItem0(){const slot=pick(SLOTS),r=rollRar(),lv=S.best+rnd(0,3),m=RMUL[r]*(1+lv*.3),ic=pick(ICON[slot]);
  const atk=['weapon','gloves','bling'].includes(slot)?Math.round(m*rnd(8,12)):Math.round(m*rnd(1,3));
  const hp=['hat','suit','shoes'].includes(slot)?Math.round(m*rnd(40,60)):Math.round(m*rnd(5,15));
  return{slot,r,lv,atk,hp,ic,name:pick(ADJ)+' '+NOUN[ic]}}
-const ipow=i=>i?i.atk*5+i.hp:0;
 const hmul=()=>1+(S.hero.lvl-1)*.06;
 function stats(){let a=10,h=100;for(const s of SLOTS){const g=S.gear&&S.gear[s];if(g){a+=+g.atk||0;h+=+g.hp||0}}a=Math.round(a*hmul());h=Math.round(h*hmul());return{atk:a,hp:h,power:a*5+h}}
 const sellVal=i=>Math.round((10+i.lv*2)*RMUL[i.r]);
@@ -412,7 +434,7 @@ function render(){hud();AUD.music(tab=='battle'?'battle_theme':'town_theme');dra
   <div class="forge"><img src="${IMG.bench}"><div style="flex:1"><button class="btn big" onclick="forge()" ${S.hammers<1?'disabled':''}>Open Saddlebag <img src="${IMG.crate}" style="height:24px;width:auto;vertical-align:middle"> 1</button>
   <button class="btn sm ${S.auto?'g':'b'}" onclick="toggleAuto()">Auto: ${S.auto?'ON':'OFF'}</button></div></div>
   <div class="chatstrip" id="strip"></div>
-  <div class="card smithy"><div class="srow"><span>Smithy Lv ${S.forgeLvl} · ATK ${s.atk.toLocaleString()} · HP ${s.hp.toLocaleString()}</span></div><small class="odds">${RAR.map((r,i)=>`<span class="rt${i}">${r} ${(w[i]/t*100).toFixed(1)}%</span>`).join(' · ')}</small>
+  <div class="card smithy"><div class="srow"><span>Smithy Lv ${S.forgeLvl} · ATK ${s.atk.toLocaleString()} · HP ${s.hp.toLocaleString()}</span><button class="btn sm stb" onclick="statSheet()">📜 Stats</button></div><small class="odds">${RAR.map((r,i)=>`<span class="rt${i}">${r} ${(w[i]/t*100).toFixed(1)}%</span>`).join(' · ')}</small>
   <button class="btn sm g" onclick="upgrade()" ${S.gold<upCost()?'disabled':''}>Upgrade Smithy ($${upCost().toLocaleString()})</button><small class="tip">Tap gear for details. +1 bag / 20s (max ${hmax()}).</small></div>`;drawStrip()}
  if(tab=='battle'){const e=B?B.e:enemy(),D=DIST[e.di];
   v.innerHTML=`<div class="card"><h3>Daily Jobs <button class="btn sm ${S.daily.claimed?'b':'g'}" style="display:inline;width:auto;margin:0;float:right;padding:4px 8px" onclick="showDaily()">🎁 Day ${S.daily.streak}${S.daily.claimed?'':' <span class=badge>!</span>'}</button></h3>
@@ -441,6 +463,166 @@ function render(){hud();AUD.music(tab=='battle'?'battle_theme':'town_theme');dra
   <p style="font-size:11px">Population and players are simulated.</p>`}}
 function sendChat(){const i=$('cmsg');if(!i.value)return;say('You',0,i.value.slice(0,100));i.value='';save();
  if(S.members.length)setTimeout(()=>{say(pick(S.members).name,1,pick(['ha true','same','you said it','yeehaw','hit the outlaw king when you can','nice']));save()},rnd(1500,4000))}
+// ===================== v6: substats, compare popup, stats sheet, live chat =====================
+const SUB={
+ cc:{n:'Crit Chance',u:'%',lo:1,hi:4,cap:60},cd:{n:'Crit Damage',u:'%',lo:6,hi:16,cap:400},ls:{n:'Lifesteal',u:'%',lo:1,hi:3,cap:25},
+ bd:{n:'Bonus Damage',u:'%',lo:2,hi:6,cap:300},rg:{n:'Health Regen',u:'/s',lo:1,hi:3,flat:1},bl:{n:'Block Chance',u:'%',lo:1,hi:4,cap:45},
+ dg:{n:'Dodge',u:'%',lo:1,hi:3,cap:35},as:{n:'Attack Speed',u:'%',lo:2,hi:6,cap:100},sd:{n:'Skill Damage',u:'%',lo:4,hi:10,cap:400},
+ bs:{n:'Boss Damage',u:'%',lo:4,hi:10,cap:400},gf:{n:'Gold Find',u:'%',lo:3,hi:8,cap:300}};
+const SUBK=Object.keys(SUB);
+function rollSub(k,r,lv){const d=SUB[k],q=1+r*.25;let v=(d.lo+Math.random()*(d.hi-d.lo))*q;if(d.flat)v*=1+lv*.35;return Math.round(v*10)/10}
+function rollSubs(it){const ks=SUBK.slice().sort(()=>Math.random()-.5).slice(0,it.r);it.sub={};for(const k of ks)it.sub[k]=rollSub(k,it.r,it.lv);return it}
+const _mk0=makeItem0;
+function makeItem(){return rollSubs(_mk0())}
+function v6migrate(){for(const s of SLOTS){const g=S.gear&&S.gear[s];if(g){g.atk=+g.atk||0;g.hp=+g.hp||0;g.lv=+g.lv||1;g.r=Math.max(0,Math.min(4,+g.r||0));if(!g.sub||typeof g.sub!='object')rollSubs(g)}}
+ if(S.autoSell==null)S.autoSell=-1;if(S.skipSold==null)S.skipSold=false;S.wchat=S.wchat||[];if(!Array.isArray(S.chat))S.chat=[];S.v6=1}
+v6migrate();
+const fmtS=(k,v)=>(SUB[k].flat?'+'+Math.round(v):'+'+(+v).toFixed(1).replace(/\.0$/,''))+SUB[k].u;
+function subTot(ex){const t={};for(const k of SUBK)t[k]=0;for(const s of SLOTS){const g=ex&&ex.slot==s?ex:S.gear&&S.gear[s];if(g&&g.sub)for(const k in g.sub)if(k in t)t[k]+=+g.sub[k]||0}
+ for(const k of SUBK)if(SUB[k].cap)t[k]=Math.min(SUB[k].cap,t[k]);return t}
+function stats(ex){let a=10,h=100;for(const s of SLOTS){const g=ex&&ex.slot==s?ex:S.gear&&S.gear[s];if(g){a+=+g.atk||0;h+=+g.hp||0}}a=Math.round(a*hmul());h=Math.round(h*hmul());
+ const t=subTot(ex);if(!isFinite(a)||a<1)a=10;if(!isFinite(h)||h<1)h=100;
+ const cc=Math.min(.75,.12+t.cc/100),cm=1+1+t.cd/100,dps=(1+t.bd/100)*(1+cc*(cm-1))*(1+t.as/100)/1.12;
+ const tank=1/(1-t.bl/100*.7)/(1-t.dg/100);const sus=t.ls/100*a*dps*1.4+t.rg*hmul();
+ const power=Math.round(a*5*dps+h*tank+sus*12+(t.sd+t.bs+t.gf)*a*.02);
+ return{atk:a,hp:h,power,t,cc,cm,rg:t.rg*hmul()}}
+function ipow(i){return i?stats(i).power-stats({slot:i.slot,atk:0,hp:0,sub:{}}).power:0}
+function card(it,other,label){if(!it)return`<div class="icard re"><div class="ilab">${label}</div><div class="ibody" style="text-align:center;padding:18px 4px;color:#7a6040">Nothing equipped</div></div>`;
+ const o=other||{atk:0,hp:0,sub:{}},sub=it.sub||{},os=o.sub||{};
+ const df=(a,b,f)=>{const d=Math.round((a-b)*10)/10;return other===undefined||!d?'':`<em class="${d>0?'up':'dn'}">${d>0?'▲':'▼'}${f?f(Math.abs(d)):Math.abs(d)}</em>`};
+ let rows=`<div class="srw base"><span>ATK</span><b>${it.atk}${df(it.atk,o.atk)}</b></div><div class="srw base"><span>HP</span><b>${it.hp}${df(it.hp,o.hp)}</b></div>`;
+ for(const k of Object.keys(sub)){const nw=other!==undefined&&!(k in os);rows+=`<div class="srw${nw?' nw':''}"><span>${SUB[k].n}${nw?' <i>NEW</i>':''}</span><b>${fmtS(k,sub[k])}${nw?'':df(sub[k],os[k]||0)}</b></div>`}
+ if(other!==undefined)for(const k of Object.keys(os))if(!(k in sub))rows+=`<div class="srw gone"><span>${SUB[k].n}</span><b><em class="dn">lose ${fmtS(k,os[k])}</em></b></div>`;
+ return`<div class="icard r${it.r}"><div class="ilab">${label}</div><div class="ihd"><img src="${IMG[it.ic]}"><div><b class="rt${it.r}">${it.name}</b><small>${RAR[it.r]} · Lv ${it.lv}</small></div></div><div class="ibody">${rows||''}</div></div>`}
+function itemHTML(i){return i?card(i,undefined,SLOTNM[i.slot]):'<i>Nothing equipped</i>'}
+function gearInfo(sl){snd('click');const i=S.gear[sl];if(!i){modal(`<h3 class="wt" style="text-align:center">${SLOTNM[sl]} slot</h3><p>Empty. Open saddlebags to find ${SLOTNM[sl].toLowerCase()}.</p><button class="btn" onclick="closeM()">OK</button>`);return}
+ modal(`<h3 class="wt" style="text-align:center;font-size:22px">${SLOTNM[sl]}</h3>${card(i,undefined,'Equipped')}<div class="row"><span>Power from item</span><span>${ipow(i).toLocaleString()}</span></div><div class="row"><span>Fence value</span><span>$${sellVal(i)}</span></div><button class="btn sm" onclick="statSheet()">Hero Stats</button><button class="btn sm" onclick="closeM()">Close</button>`)}
+function statSheet(){const s=stats(),t=s.t;const r=(n,v)=>`<div class="srw"><span>${n}</span><b>${v}</b></div>`;
+ modal(`<h3 class="wt" style="text-align:center;font-size:22px">Hero Stats</h3><div class="icard r2" style="margin:0"><div class="ibody st2">
+ ${r('Power',s.power.toLocaleString())}${r('Attack',s.atk.toLocaleString())}${r('Health',s.hp.toLocaleString())}
+ ${r('Crit Chance',(s.cc*100).toFixed(1)+'%')}${r('Crit Damage',Math.round(s.cm*100)+'%')}${r('Lifesteal',t.ls.toFixed(1)+'%')}${r('Bonus Damage',t.bd.toFixed(1)+'%')}
+ ${r('Health Regen',Math.round(s.rg)+'/s')}${r('Block Chance',t.bl.toFixed(1)+'%')}${r('Dodge',t.dg.toFixed(1)+'%')}${r('Attack Speed',t.as.toFixed(1)+'%')}
+ ${r('Skill Damage',t.sd.toFixed(1)+'%')}${r('Boss Damage',t.bs.toFixed(1)+'%')}${r('Gold Find',t.gf.toFixed(1)+'%')}</div></div>
+ <small style="display:block;margin:4px 0;font-weight:normal">Caps: crit 75% total, block 45%, dodge 35%, lifesteal 25%. Block cuts a hit by 70%.</small><button class="btn sm" onclick="closeM()">Close</button>`)}
+function forge(){if(S.hammers<1)return;S.hammers--;prog('crates');const it=makeItem(),cur=S.gear[it.slot];window._it=it;const d=stats(it).power-stats().power;
+ if(S.auto){d>0?equip(true):sell(true);return}snd('crate');if(it.r>=3&&typeof aiReact=='function')aiReact('drop',it);recentDrop=it;
+ let note='';if(S.autoSell>=0&&it.r<S.autoSell&&d<=0){S.gold+=sellVal(it);if(S.skipSold){toast(`Auto-sold ${it.name} (+$${sellVal(it)})`);save();hud();return}note=`<div class="asold">Auto-sold for +$${sellVal(it)} (below ${RAR[S.autoSell]})</div>`;window._sold=1}else window._sold=0;
+ modal(`<h3 class="wt" style="text-align:center;font-size:21px;margin:0 0 4px">Saddlebag Cracked!</h3>${note}<div class="cmp">${card(it,cur||{atk:0,hp:0,sub:{}},'New')}${card(cur,undefined,'Equipped')}</div>
+ <div class="pchg ${d>=0?'up':'dn'}">Power ${d>=0?'+':''}${d.toLocaleString()}</div>
+ ${window._sold?`<button class="btn g" onclick="S.gold-=sellVal(_it);equip()">Equip instead (undo sale)</button><button class="btn" onclick="closeM()">OK</button>`:`<div class="b2"><button class="btn g" onclick="equip()">Equip${cur?` (sell old +$${sellVal(cur)})`:''}</button><button class="btn" onclick="sell()">Sell +$${sellVal(it)}</button></div>`}
+ <button class="btn sm" onclick="autoSellCfg()" style="padding:4px;font-size:12px">Auto-sell: ${S.autoSell<0?'Off':'below '+RAR[S.autoSell]}</button>`);save();hud()}
+function autoSellCfg(){modal(`<h3 class="wt" style="text-align:center">Auto-sell</h3><p style="font-size:12px;font-weight:normal">Sell new items below a rarity automatically (only if they don't raise your power). The popup still shows by default so you never miss a drop.</p>
+ ${[-1,1,2,3,4].map(r=>`<button class="btn sm ${S.autoSell==r?'g':''}" onclick="S.autoSell=${r};save();autoSellCfg()">${r<0?'Off':'Below '+RAR[r]}</button>`).join('')}
+ <button class="btn sm ${S.skipSold?'g':''}" onclick="S.skipSold=!S.skipSold;save();autoSellCfg()">Skip popup for auto-sold: ${S.skipSold?'ON':'OFF'}</button><button class="btn sm b" onclick="closeM()">Done</button>`)}
+let recentDrop=null;
+// ---- combat ----
+function heal(n){if(!B||n<=0)return 0;const h=Math.min(n,B.pmax-B.php);B.php+=h;return h}
+function tick_(){if(!B||!isFinite(B.e.hp)||!isFinite(B.php))startFight();const s=stats(),t=s.t;if(!(S.stage>=1))S.stage=1;
+ if(S.auto)for(const k of SK)if(skReady(k)&&(k.id!='bribe'||B.e.boss))useSkill(k.id,1);
+ B.acc=(B.acc||0)+1+t.as/100;let shots=0,healed=0;
+ while(B.acc>=1&&shots<2&&B.e.hp>0){B.acc-=1;shots++;
+  const crit=Math.random()<s.cc;let dd=s.atk*(.85+Math.random()*.3)*(1+t.bd/100)*(B.e.boss?1+t.bs/100:1)*(crit?s.cm:1);dd=Math.max(1,Math.round(dd));
+  B.e.hp-=dd;healed+=heal(dd*t.ls/100);const sh=shots;setTimeout(()=>{FX.shoot(crit,B&&B.e.hp<=0);float(dd,'e',crit)},(sh-1)*260);snd(crit?'crit':'hit')}
+ healed+=heal(s.rg*.7);if(healed>=1)float('+'+Math.round(healed),'h');
+ if(B.e.hp<=0){const boss=B.e.boss,g=Math.round(8*Math.pow(1.1,S.stage)*(boss?5:1)*(1+t.gf/100)),h=boss?8:(Math.random()<.5?1:0);
+  FX.loot(g,h);S.gold+=g;S.hammers=Math.max(S.hammers,Math.min(S.hammers+h,hmax()));gainXP(Math.round((4+S.stage)*(boss?5:1)));prog('kills');warPts(boss?25:1);
+  if(boss){prog('boss');snd('win');lastBoss=B.e.name;if(S.guild)aiReact('boss');const nd=distOf(S.stage+1);if(nd!=distOf(S.stage)&&S.stage+1>S.best)setTimeout(()=>modal(`<h3 class="wt" style="text-align:center;font-size:22px">New Territory!</h3><img src="${IMG[DIST[nd].bg]}" style="width:100%;border:3px solid #222;border-radius:12px"><p style="text-align:center">${DIST[nd].n} is open. New gangs, new boss, new claims.</p><button class="btn g" onclick="closeM()">Let's go</button>`),300)}
+  S.stage++;S.best=Math.max(S.best,S.stage);B=null;save();hud();if(tab=='battle'||tab=='turf')render();setTimeout(startFight,0);return}
+ setTimeout(()=>{if(!B)return;FX.foeAtk();
+  if(Math.random()<t.dg/100){float('MISS','m');drawB();return}
+  let ed=Math.round(B.e.atk*(.8+Math.random()*.4));if(B.intim>now())ed=Math.round(ed*.4);
+  if(Math.random()<t.bl/100){ed=Math.round(ed*.3);float('BLOCK '+ed,'b')}else{float(ed,'p');snd('hurt')}
+  B.php-=ed;if(B.php<=0){S.stage=Math.max(1,S.stage-1);B=null;save();startFight()}drawB()},300);drawB()}
+let lastBoss='';
+function useSkill(id,quiet){const k=SK.find(x=>x.id==id);if(!B||!skReady(k))return false;const sm=1+stats().t.sd/100*1,bm=B.e.boss?1+stats().t.bs/100:1;
+ if(id=='bribe'){if(S.gold<bribeCost())return false;S.gold-=bribeCost();const d=Math.round(B.e.max*.35*Math.min(sm,1.6));B.e.hp-=d;float('KABOOM '+d,'e',1);FX.dyn()}
+ if(id=='drive'){const d=Math.round(stats().atk*6*sm*bm);B.e.hp-=d;float('QUICK DRAW '+d,'e',1);FX.flurry()}
+ if(id=='intim'){B.intim=now()+10000*Math.min(sm,2);float('ROPED!','e',0);FX.lasso()}
+ S.cd[id]=now()+k.cd*1000;prog('skills');if(!quiet)snd('skill');drawSkills();drawB();return true}
+function float(n,who,c){const a=$('arena');if(!a||!a.appendChild)return;const d=document.createElement('div');d.className='dmg ol'+(c?' c':'')+({p:' p',h:' hl',m:' ms',b:' bk'}[who]||'');d.textContent=(c&&typeof n=='number'?'CRIT ':'')+n;
+ d.style.left=(who=='e'?55:14)+rnd(0,14)+'%';d.style.top=(who=='h'?rnd(30,38):rnd(40,54))+'%';a.appendChild(d);const rm=()=>{if(d.parentNode&&d.remove)d.remove()};if(d.addEventListener)d.addEventListener('animationend',rm);setTimeout(rm,1000)}
+function equip(q){const it=window._it,old=S.gear[it.slot];S.gear[it.slot]=it;if(old)S.gold+=sellVal(old);if(!q){closeM();snd('lvl')}save();if(B){const s=stats();B.pmax=s.hp;B.php=Math.min(B.php,s.hp)}render()}
+// ================= chat =================
+const PER=[
+ {n:'Doc Holloway',v:'old',c:'#e9b36a'},{n:'Calamity Jo',v:'loud',c:'#ff9a7a'},{n:'Slick Vance',v:'sharp',c:'#c9a0ff'},{n:'Kid Mesquite',v:'kid',c:'#9be86a'},
+ {n:'Preacher Amos',v:'pre',c:'#ffe27a'},{n:'Belle Starling',v:'belle',c:'#ff9ad0'},{n:'Hank Two-Guns',v:'gruff',c:'#8fd0ff'},{n:'Rattler Ruiz',v:'trash',c:'#ffb44a'}];
+const VOICE={old:[t=>t+', partner.',t=>'Well now, '+t[0].toLowerCase()+t.slice(1),t=>t+'. Reckon so anyhow.'],loud:[t=>t.toUpperCase()+'!!',t=>'YEEHAW '+t+'!',t=>t+'!!'],
+ sharp:[t=>t+'. House always wins.',t=>'Odds say '+t[0].toLowerCase()+t.slice(1),t=>t+'. Deal me in.'],kid:[t=>t.toLowerCase()+' lol',t=>'yo '+t.toLowerCase(),t=>t.toLowerCase()+' fr'],
+ pre:[t=>t+', Lord willin.',t=>'Brother, '+t[0].toLowerCase()+t.slice(1),t=>t+'. Amen.'],belle:[t=>t+', sugar.',t=>'Honey, '+t[0].toLowerCase()+t.slice(1),t=>t+'. Mmhmm.'],
+ gruff:[t=>t.split(/[,.]/)[0]+'.',t=>'Hm. '+t,t=>t],trash:[t=>t+'. Keep up, greenhorn.',t=>'Heh. '+t,t=>t+'. Bet you can\'t.']};
+const used=[];function uniq(a){const f=a.filter(x=>!used.includes(x));const r=pick(f.length?f:a);used.push(r);if(used.length>40)used.shift();return r}
+function persona(name){return PER.find(p=>p.n==name)||{n:name,v:PER[[...name].reduce((a,c)=>a+c.charCodeAt(0),0)%PER.length].v,c:'#8fd0ff'}}
+function voice(p,t){const V=VOICE[p.v]||VOICE.gruff;t=t.replace(/\.$/,'');return /\?$/.test(t)?V[1](t):pick(V)(t)}
+function ctx(){const s=stats(),t=s.t,eq=SLOTS.map(k=>S.gear[k]).filter(Boolean),best=eq.reduce((a,b)=>!a||b.r>a.r?b:a,null),empty=SLOTS.filter(k=>!S.gear[k]),weak=SLOTS.filter(k=>S.gear[k]).sort((a,b)=>ipow(S.gear[a])-ipow(S.gear[b]))[0];
+ const D=DIST[distOf(S.stage)],top=SUBK.filter(k=>t[k]>0).sort((a,b)=>t[b]-t[a])[0];
+ return{lvl:S.hero.lvl,trail:(S.stage-1)%10+1,stage:S.stage,area:D.n,boss:D.boss[1].replace('WANTED: ',''),pwr:s.power.toLocaleString(),best:best?best.name:'nothing yet',bestR:best?RAR[best.r]:'Common',
+  empty:empty.length?SLOTNM[empty[0]]:null,weak:weak?SLOTNM[weak]:'weapon',top:top?SUB[top].n:null,ls:t.ls,bl:t.bl,cc:Math.round(s.cc*100),drop:recentDrop?recentDrop.name:null,dropR:recentDrop?RAR[recentDrop.r]:null,smithy:S.forgeLvl}}
+const fillC=(s,c)=>s.replace(/\{(\w+)\}/g,(m,k)=>c[k]!=null?c[k]:m);
+const INT=[
+ ['botq',/are (you|u) (a )?(bot|ai|real|human)|you a bot/i],['greet',/^(hi|hey|hello|howdy|yo|sup|mornin|evening|hiya)\b|good (morning|evening)/i],['thanks',/thank|thx|\bty\b|appreciate/i],
+ ['insult',/noob|trash|suck|stupid|idiot|loser|garbage|scrub|bad at/i],['joke',/joke|funny|make me laugh/i],['invite',/join|invite|recruit|my posse|guild|who wants to ride/i],
+ ['build',/build|stat|lifesteal|life steal|crit|block|dodge|regen|attack speed|substat|skill dmg|skill damage|bonus damage|gold find/i],['boss',/boss|wanted|dynamo|rosa|silverpick|express|goldtooth|dustcloud/i],
+ ['farm',/farm|where|grind|stuck|xp|level up|lvl|gold|money|cash/i],['gear',/gear|item|drop|legendary|epic|rare|weapon|hat|boots|duster|gloves|badge|saddlebag|anvil|smithy|equip/i],
+ ['war',/range war|war\b|claim|turf|raid/i],['help',/help|how do|how to|what do i|new here|tips?|explain|\?$/i],['laugh',/lol|lmao|haha|😂/i]];
+const REP={
+ greet:['Howdy {me}. Trail {trail} in {area} treating you right?','Evening. Saw you riding through {area}','Hey hey, welcome back. Lv {lvl} already'],
+ thanks:['Anytime','No trouble at all','Pay it forward on the next greenhorn'],
+ botq:['I wear the AI tag right there by my name. Simulated rider, real advice though','Yep, I am one of the AI riders on this server. Ask me anything about builds'],
+ insult:['Big talk from a Lv {lvl}','Them is fighting words. Meet me at {area} at high noon','I have seen tumbleweeds hit harder','Say that again after you beat {boss}'],
+ joke:['Why did the outlaw bring a ladder? Heard the drinks were on the house','What do you call a cowboy who helps out? A deputy-ful soul','My horse quit. Said I was too much of a saddle-ist'],
+ invite:['Holler in the Posse tab and join up. More riders, faster boss kills','Always room for one more gun. Join a posse from the Posse tab','I would ride with you, {me}. You pull your weight at {pwr} power'],
+ build:['You are sitting at {cc}% crit. Stack Crit Damage next and those crits will sing','Lifesteal at {ls}% keeps you alive on long fights. Pair it with Attack Speed','Block {bl}% is nice. Above 30% bosses barely scratch you','Your top substat is {top}. Lean into it, then patch the {weak}','For bosses I run Boss Damage plus Skill Damage and fire Quick Draw on cooldown','Glass cannon: Crit Chance, Crit Damage, Bonus Damage. Tank: Block, Dodge, Regen'],
+ boss:['{boss} hits hard. Save Quick Draw and Lasso for him','Rope {boss} with the Lasso first, then Dynamite','Boss Damage substats make {boss} a lot friendlier','I took down {boss} with about {pwr} power, you are close'],
+ farm:['Back up a trail or two and farm, bags drop off the outlaws','Upgrade the Smithy, Lv {smithy} odds are rough','Gold Find substats plus turf income adds up fast','Stuck at trail {trail}? Swap that {weak}, it is your weakest piece'],
+ gear:['Your best piece is the {best}. Not bad','Rolled any Legendaries yet? Smithy upgrades help','Check the compare popup, NEW substats light up in gold','That {drop} you pulled looks mighty fine','Your {empty} slot is empty, fill it first'],
+ war:['Range War points come from fights, bosses and claims','Red Mesa keeps jumping claims, fortify yours','Top 3 in the Range War get gems. Lets go'],
+ help:['Open saddlebags at the Smithy, compare, keep the stronger piece','Tap a gear slot to see its full stats. Hero Stats shows totals','Skills unlock at Lv 2, 4 and 6. Use them on bosses','Auto mode equips upgrades for you if you get tired'],
+ laugh:['Ha','Heh, good one','You crack me up'],
+ none:['Hm, tell me more','Could be','I hear that','Fair enough','Ride on','You said it']};
+const AMB=[
+ ['drop',['Just pulled an Epic duster with Lifesteal on it','Three Commons in a row. This anvil is cursed','Legendary Six-Shooter dropped!! 4 substats','Got Block and Dodge on the same boots, tanky now']],
+ ['boss',['{boss} went down. Took two tries','Who else stuck on {boss}?','Big Mo Dynamo nearly blew me off the map','Pistol Rosa crits like a freight train']],
+ ['build',['Crit Damage over Crit Chance once you hit 40%','Attack Speed plus Lifesteal is the sneaky build','Gold Find on everything, I am rich and weak','Skill Damage Quick Draw one-shots trash mobs']],
+ ['trash',['Ain\'t nobody in this channel faster than me','I farm trail 10s for breakfast','Posse ranks? Mine is on top, look it up']],
+ ['war',['Range War ends soon, push those claims','Who took Cactus Flats?? Show yourself','Red Mesa Outlaws are raiding again']],
+ ['player',['{me}, nice power, {pwr} is solid','Saw {me} on trail {trail}, keep riding','{me} what substats you running?','Grats on the {drop}, {me}!']]];
+let typing=null,chCh='world';
+function chanArr(c){return c=='posse'?S.chat:S.wchat}
+function post(c,who,ai,txt){const a=chanArr(c);a.push({who,ai,txt,t:Date.now()});if(a.length>100)a.splice(0,a.length-100);if(c=='posse'&&tab=='guild')drawChat0();drawSheet();drawStrip();save()}
+const drawChat0=drawChat;
+function say(who,ai,txt){post('posse',who,ai,txt)}
+function speakers(c){return c=='posse'&&S.members.length?S.members.map(m=>m.name):PER.map(p=>p.n)}
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+function memo(){S.memo=S.memo||[];return S.memo}
+function reply(c,msg){const low=msg.toLowerCase(),spk=speakers(c);let who=null;const at=msg.match(/@([\w' -]+)/);
+ if(at){const q=at[1].toLowerCase();who=spk.find(n=>q.startsWith(n.toLowerCase())||n.toLowerCase().startsWith(q.split(' ')[0]))}
+ if(!who)who=spk.find(n=>low.includes(n.toLowerCase().split(' ')[0].toLowerCase()));
+ const it=(INT.find(([k,r])=>r.test(msg))||['none'])[0];const m=memo();m.push(it);if(m.length>6)m.shift();
+ if(!who)who=pick(spk);const p=persona(who),cx=ctx();cx.me='you';
+ let pool=REP[it].filter(x=>!(x.includes('{ls}')&&cx.ls<1)&&!(x.includes('{bl}')&&cx.bl<1)&&!(x.includes('{top}')&&!cx.top)&&!(x.includes('{empty}')&&!cx.empty)&&!(x.includes('{drop}')&&!cx.drop));const cx0=0;let base=uniq(pool.length?pool:REP.none);if(m.filter(x=>x==it).length>=3&&it!='none')base=pick(['You sure are stuck on that topic','Again with that, huh','Still chewing on that one? '+base]);
+ const txt=voice(p,fillC(base,cx)).replace(/\{\w+\}/g,'something');
+ const n=1000+Math.random()*3000;typing={c,who};drawSheet();setTimeout(()=>{typing=null;post(c,who,1,txt);
+  if(Math.random()<.25&&it!='none'){const o=pick(spk.filter(x=>x!=who));if(o){setTimeout(()=>{typing={c,who:o};drawSheet();setTimeout(()=>{typing=null;post(c,o,1,voice(persona(o),pick(['Listen to '+who.split(' ')[0],'What they said','Nah, I disagree','Ha, true'])))},1200)},600)}}},n)}
+function ambient(){const cs=['world'];if(S.guild)cs.push('posse');const c=pick(cs),spk=speakers(c),who=pick(spk);const cx=ctx();cx.me='you';
+ let pool=AMB.filter(a=>a[0]!='player'||Math.random()<.4);if(!recentDrop)pool=pool.filter(a=>a[0]!='player');
+ post(c,who,1,voice(persona(who),fillC(uniq(pick(pool)[1]),cx)))}
+function chatOpen(c){if(c)chCh=c;$('csheet').classList.add('open');drawSheet();setTimeout(()=>{const i=$('cin');if(i&&i.focus&&matchMedia('(pointer:fine)').matches)i.focus()},50)}
+function chatClose(){$('csheet').classList.remove('open')}
+function drawSheet(){const sh=$('csheet');if(!sh||!sh.classList||!sh.classList.contains('open'))return;const L=$('clist');
+ document.querySelectorAll('#csheet .ctab').forEach(b=>b.classList.toggle('on',b.dataset.c==chCh));
+ if(chCh=='posse'&&!S.guild){L.innerHTML=`<div class="cnone">You are not in a posse yet.<button class="btn sm g" onclick="joinG(pick(GN));chatOpen('posse')">Join a Posse</button></div>`;$('ctype').textContent='';return}
+ L.innerHTML=chanArr(chCh).map(m=>{const p=persona(m.who);return`<div class="cm${m.who=='You'?' me':''}"><b style="color:${m.who=='System'?'#ffd23a':m.who=='You'?'#ffd27a':p.c}">${esc(m.who)}</b>${m.ai?'<span class="ai">AI</span>':''} ${esc(m.txt)}</div>`}).join('');
+ $('ctype').innerHTML=typing&&typing.c==chCh?`<i>${esc(typing.who)} is typing</i><span class="dots"><i></i><i></i><i></i></span>`:'';L.scrollTop=1e9}
+function chatSend(){const i=$('cin'),v=(i.value||'').trim().slice(0,140);if(!v)return;i.value='';if(chCh=='posse'&&!S.guild)return;post(chCh,'You',0,v);reply(chCh,v)}
+function sendChat(){const i=$('cmsg');if(!i||!i.value)return;const v=i.value.slice(0,140);i.value='';post('posse','You',0,v);reply('posse',v)}
+function drawStrip(){const c=$('strip');if(!c)return;const a=S.guild&&S.chat.length?S.chat:S.wchat,m=a[a.length-1];c.onclick=()=>chatOpen(S.guild?'posse':'world');
+ c.innerHTML=m?`💬 <b style="color:${persona(m.who).c}">${esc(m.who)}</b>${m.ai?'<span class="ai">AI</span>':''}: ${esc(m.txt)}`:'💬 Tap to chat (World)'}
+function chatUI(){if(!document.body||!document.body.insertAdjacentHTML)return;
+ document.body.insertAdjacentHTML('beforeend',`<div id="csheet"><div class="chd"><button class="ctab" data-c="world" onclick="chatOpen('world')">World</button><button class="ctab" data-c="posse" onclick="chatOpen('posse')">Posse</button><button class="cx" onclick="chatClose()">✕</button></div><div id="clist"></div><div id="ctype"></div><form class="cfm" onsubmit="event.preventDefault();chatSend()"><input id="cin" maxlength="140" placeholder="Say something, try @Doc" autocomplete="off"><button class="btn sm g">Send</button></form></div>`)}
+if(typeof document!='undefined'&&document.body&&document.body.insertAdjacentHTML)chatUI();
+if(!S.wchat.length)['Howdy riders','Who is farming Canyon Pass tonight?','Range War is heating up'].forEach((t,i)=>S.wchat.push({who:PER[i].n,ai:1,txt:t,t:Date.now()}));
+if(typeof setInterval!='undefined'&&!(typeof window!='undefined'&&window.NOBOOT))setInterval(()=>{if(Math.random()<.6)ambient()},rnd(5000,8000));
+
 function boot(){[['pbar','ptrail'],['ebar','etrail']].forEach(([b,t])=>{const e=$(b);if(e&&!$(t)){const x=document.createElement('i');x.id=t;x.className='trail';e.parentNode.insertBefore(x,e)}});ANIM.set('hero','hero');$('av').style.backgroundImage=`url(${IMG.avatar})`;$('icash').src=IMG.cash;$('idia').src=IMG.dia;$('icrate').src=IMG.crate;
 document.querySelectorAll('nav img').forEach(i=>i.src=IMG[i.dataset.i]);
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;snd('click');render()});
