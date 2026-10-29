@@ -167,6 +167,9 @@ h3,.wt{font-family:Westhorn,Georgia,serif;font-weight:normal;letter-spacing:.8px
 #ctype{height:18px;padding:0 10px;font:12px Georgia;color:#c9a24a}.dots i{display:inline-block;width:4px;height:4px;margin-left:2px;background:#c9a24a;border-radius:50%;animation:dt 1s infinite}.dots i:nth-child(2){animation-delay:.2s}.dots i:nth-child(3){animation-delay:.4s}
 @keyframes dt{50%{opacity:.2}}.cfm{display:flex;gap:6px;padding:6px 8px calc(8px + env(safe-area-inset-bottom))}.cfm input{flex:1;font:16px Georgia;padding:7px;border-radius:8px;border:2px solid #8a6a3a;background:#f3e3bf;min-width:0}.cfm .btn{width:auto;margin:0}
 .cnone{text-align:center;padding:20px}
+#atoast{position:absolute;left:50%;top:62px;transform:translateX(-50%);background:#2a1a0cdd;color:#f3e3bf;font:12px Georgia,serif;padding:3px 9px;border-radius:10px;z-index:8;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+#autoind{position:absolute;right:8px;top:50px;z-index:8;background:#2f9a2f;color:#fff;font:13px Westhorn,Georgia,serif;padding:2px 8px;border-radius:8px;border:2px solid #fff8;animation:ap 1s infinite}#autoind.wait{background:#7a6040;animation:none}
+@keyframes ap{50%{opacity:.55}}.shk{animation:shk .3s}@keyframes shk{25%{transform:rotate(-3deg) scale(1.03)}75%{transform:rotate(3deg) scale(1.03)}}
 </style></head><body>
 <div id="top"><div class="av" id="av"></div>
 <div class="pill ol"><img id="icash"><b id="gd"></b></div><div class="pill ol"><img id="idia"><b id="gm"></b></div><button id="mute" onclick="toggleMute()">🔊</button><div class="pill ol"><img id="icrate"><b><span id="hm"></span>/<span id="hmax"></span></b></div></div>
@@ -507,7 +510,7 @@ function statSheet(){const s=stats(),t=s.t;const r=(n,v)=>`<div class="srw"><spa
 function forge(man){if(S.hammers<1){if(man)toast('Out of saddlebags. +1 every 20s');hud();return}let it,cur,d;
  try{it=makeItem();cur=S.gear[it.slot];d=stats(it).power-stats().power}catch(e){console.error(e);return}
  S.hammers--;prog('crates');window._it=it;
- if(S.auto&&!man){if(d>0){equip(true);toast('Auto equipped '+it.name+' (Power +'+d.toLocaleString()+')')}else sell(true);hud();return}
+ if(S.auto&&!man&&d<=0&&!(S.autoStopR>=0&&it.r>=S.autoStopR)){const sv=sellVal(it);sell(true);bagShake();if(S.autoToast!==false)atoast(`<b class="rt${it.r}">${it.name}</b> sold +$${sv}`);hud();return}
  try{drawPop(it,cur,d)}catch(e){console.error(e);window._mlock=1;modal(`<h3 class="wt" style="text-align:center">Saddlebag Cracked!</h3><div class="card"><b class="rt${it.r}">${it.name}</b><br>${RAR[it.r]} Lv ${it.lv}<br>ATK ${it.atk} HP ${it.hp}<br>Power ${d>=0?'+':''}${d}</div><button class="btn g" onclick="equip()">Equip</button><button class="btn" onclick="sell()">Sell +$${sellVal(it)}</button>`,1,1)}
  save();hud()}
 function drawPop(it,cur,d){snd('crate');recentDrop=it;if(it.r>=3)setTimeout(()=>{try{aiReact('drop',it)}catch(e){}},1500);
@@ -639,11 +642,17 @@ if(typeof document!='undefined'&&document.body&&document.body.insertAdjacentHTML
 if(!S.wchat.length)['Howdy riders','Who is farming Canyon Pass tonight?','Range War is heating up'].forEach((t,i)=>S.wchat.push({who:PER[i].n,ai:1,txt:t,t:Date.now()}));
 if(typeof setInterval!='undefined'&&!(typeof window!='undefined'&&window.NOBOOT))setInterval(()=>{if(Math.random()<.6)ambient()},rnd(5000,8000));
 
-const MQ=[];const VER='v7';
+const MQ=[];const VER='v8';
 function modal(h,q,lock){const open=$('modal').style.display=='flex';if(q&&open){MQ.push([h,lock]);return}window._mlock=!!lock;modal0(h)}
 function closeM(){window._mlock=false;closeM0();if(MQ.length){const n=MQ.shift();setTimeout(()=>modal(n[0],0,n[1]),180)}}
 function sell(q){const it=window._it;if(it){S.gold+=sellVal(it);window._it=null}if(!q){closeM();snd('coin')}save();q?hud():render()}
-const _tm=toggleMute0;function toggleMute(){_tm();const b=$('mbody');if(b&&b.insertAdjacentHTML)b.insertAdjacentHTML('beforeend','<div style="text-align:center;font:11px Georgia;color:#7a5a30;margin-top:4px">Cowboy Grinder '+VER+'</div>')}
+const _tm=toggleMute0;function toggleMute(){_tm();const b=$('mbody');if(b&&b.insertAdjacentHTML)b.insertAdjacentHTML('beforeend','<button class="btn sm" onclick="S.autoStopR=[-1,2,3,4][([-1,2,3,4].indexOf(S.autoStopR)+1)%4];save();closeM();toggleMute()">Auto also stops on: '+(S.autoStopR>=0?RAR[S.autoStopR]+'+':'Upgrades only')+'</button>'+'<button class="btn sm" onclick="S.autoToast=S.autoToast===false;save();closeM();toggleMute()">Auto-sell toasts: '+(S.autoToast===false?'OFF':'ON')+'</button><div style="text-align:center;font:11px Georgia;color:#7a5a30;margin-top:4px">Cowboy Grinder '+VER+'</div>')}
+
+if(typeof S.autoStopR!='number')S.autoStopR=-1;
+function bagShake(){const b=$('fbtn');if(!b||!b.classList)return;b.classList.remove('shk');void b.offsetWidth;b.classList.add('shk')}
+let atT=0;function atoast(h){const a=$('arena');if(!a||!a.appendChild)return;let d=$('atoast');if(!d||!d.parentNode){d=document.createElement('div');d.id='atoast';a.appendChild(d)}d.innerHTML=h;d.style.opacity=1;clearTimeout(atT);atT=setTimeout(()=>{d.style.opacity=0},900)}
+function autoInd(){const a=$('arena');if(!a||!a.appendChild)return;let d=$('autoind');if(!d||!d.parentNode){d=document.createElement('div');d.id='autoind';d.textContent='AUTO';a.appendChild(d)}d.style.display=S.auto?'block':'none';d.className=S.auto&&S.hammers<1?'wait':''}
+if(typeof setInterval!='undefined'&&!(typeof window!='undefined'&&window.NOBOOT))setInterval(autoInd,500);
 
 function boot(){[['pbar','ptrail'],['ebar','etrail']].forEach(([b,t])=>{const e=$(b);if(e&&!$(t)){const x=document.createElement('i');x.id=t;x.className='trail';e.parentNode.insertBefore(x,e)}});ANIM.set('hero','hero');$('av').style.backgroundImage=`url(${IMG.avatar})`;$('icash').src=IMG.cash;$('idia').src=IMG.dia;$('icrate').src=IMG.crate;
 document.querySelectorAll('nav img').forEach(i=>i.src=IMG[i.dataset.i]);
@@ -652,7 +661,7 @@ $('modal').onclick=e=>{if(e.target.id=='modal'&&!window._mlock)closeM()};
 dailyCheck();warCheck();
 const off=Math.floor((Date.now()-S.last)/20000);if(off>0)S.hammers=Math.max(S.hammers,Math.min(hmax(),S.hammers+off));
 setInterval(()=>{if(S.hammers<hmax())S.hammers++;save();hud()},20000);
-setInterval(()=>{if(S.auto&&S.hammers>0&&$('modal').style.display!='flex')forge()},1200);
+setInterval(()=>{if(S.auto&&S.hammers>0&&$('modal').style.display!='flex')forge()},400);
 setInterval(()=>{S.gold+=turfIncome();hud()},10000);setInterval(turfAI,45000);setInterval(()=>{dailyCheck();warCheck()},60000);
 
 setInterval(tick,700);setInterval(aiTick,2000);setInterval(drift,3000);setInterval(drawSkills,1000);
