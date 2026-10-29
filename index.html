@@ -171,6 +171,11 @@ h3,.wt{font-family:Westhorn,Georgia,serif;font-weight:normal;letter-spacing:.8px
 #autoind{position:absolute;right:8px;top:50px;z-index:8;background:#2f9a2f;color:#fff;font:13px Westhorn,Georgia,serif;padding:2px 8px;border-radius:8px;border:2px solid #fff8;animation:ap 1s infinite}#autoind.wait{background:#7a6040;animation:none}
 @keyframes ap{50%{opacity:.55}}.shk{animation:shk .3s}@keyframes shk{25%{transform:rotate(-3deg) scale(1.03)}75%{transform:rotate(3deg) scale(1.03)}}
 .fx.muz.big{width:44px;height:44px}.lookp{display:flex;align-items:center;justify-content:center;gap:4px;margin:0 0 4px}.lookp figure{margin:0;text-align:center;background:#00000018;border-radius:8px;padding:2px 4px}.lookp img{height:min(78px,9vh);display:block;margin:auto}.lookp figcaption{font-size:10px;line-height:1}.lookp span{font-size:16px}#hero.lg::after{content:'';position:absolute;left:10%;right:30%;bottom:6%;height:14px;border-radius:50%;background:radial-gradient(#ffd24a99,transparent 70%);animation:ap 1.6s infinite}
+.dhead{text-align:center;padding:3px 6px;margin:0 0 3px}.dhead b{font-size:18px;display:block}.dhead small{font-size:10.5px;font-weight:normal;line-height:1.25;display:block}
+.dsh{display:flex;align-items:center;gap:6px;background:#fff6e2;border:2px solid #222;border-radius:10px;padding:2px 6px;margin:3px 0}.dsh img{height:28px;width:28px;object-fit:contain}
+.dsh div{flex:1;min-width:0}.dsh b{display:block;font-size:13px}.dsh small{display:block;font-size:10.5px;font-weight:normal;line-height:1.2}.dsh .btn{width:auto;margin:0;padding:4px 8px;white-space:nowrap}
+.dfoot{font-size:10.5px;text-align:center;color:#fff;text-shadow:0 1px 2px #000;padding:2px}
+@media (max-height:700px){.dsh img{height:24px;width:24px}.dsh{padding:1px 5px;margin:2px 0}.dsh small{font-size:10px}.dhead small{display:none}.dhead b{font-size:16px}}
 </style></head><body>
 <div id="top"><div class="av" id="av"></div>
 <div class="pill ol"><img id="icash"><b id="gd"></b></div><div class="pill ol"><img id="idia"><b id="gm"></b></div><button id="mute" onclick="toggleMute()">🔊</button><div class="pill ol"><img id="icrate"><b><span id="hm"></span>/<span id="hmax"></span></b></div></div>
@@ -216,7 +221,7 @@ function upgradeSave(){S.v=3;S.best=S.best||S.stage;S.hero=S.hero||{lvl:1,xp:0};
 try{S=JSON.parse(localStorage.getItem('racketkings'))}catch(e){}
 if(!S||(S.v!==2&&S.v!==3))S=fresh();upgradeSave();
 const save=()=>{S.last=Date.now();localStorage.setItem('racketkings',JSON.stringify(S))};
-const hmax=()=>40+S.forgeLvl*5,upCost=()=>Math.round(120*Math.pow(1.55,S.forgeLvl-1));
+const hmax=()=>40+S.forgeLvl*5+(S.bagX||0)*5,upCost=()=>Math.round(120*Math.pow(1.55,S.forgeLvl-1));
 function rarW(){return BASEW.map((w,i)=>i==0?Math.max(100,w-S.forgeLvl*40):w*(1+S.forgeLvl*.25*i))}
 function rollRar(){const w=rarW(),t=w.reduce((a,b)=>a+b);let r=Math.random()*t;for(let i=0;i<5;i++){if((r-=w[i])<0)return i}return 0}
 const ADJ=['Smooth','Dapper','Crooked','Golden','Midnight','Velvet','Lucky','Iron'];
@@ -451,7 +456,7 @@ function render(){hud();AUD.music(tab=='battle'?'battle_theme':'town_theme');dra
   return `<div class="terr ${op?'':'lock'}" style="background:${bg}"><b class="ol">${n}</b><span class="ol">${op?(me?'YOURS':t.own?t.own.replace('The ','')+' <span class="ai">AI</span>':'Unclaimed'):'🔒 '+DIST[di].n}</span><br><span class="ol">$${tInc(i)}/10s · 🛡${t.def.toLocaleString()}</span>
   ${op?(me?`<button class="btn sm g" style="padding:3px;font-size:11px;margin:3px 0 0" onclick="fortify(${i})">Fortify $${Math.round(tCost(i)/2).toLocaleString()}</button>`:`<button class="btn sm r" style="padding:3px;font-size:11px;margin:3px 0 0" onclick="claimTurf(${i})">Take $${tCost(i).toLocaleString()}</button>`):''}</div>`}).join('')}</div>
   <div class="chatstrip" id="strip"></div><small>Your power: ${s.power.toLocaleString()}. Taking claims rolls your power (80-130%) vs its defense.</small>`;drawStrip()}
- if(tab=='shop')v.innerHTML=`<div class="card" style="text-align:center"><span class="demo">DEMO STORE: NO REAL PAYMENTS</span></div>${SHOP.map((x,i)=>`<button class="btn ${i<3?'b':''}" onclick="buy(${i})" ${x[2]=='noads'&&S.noAds?'disabled':''}><img src="${IMG[SHOPI[i]]}" style="height:26px;vertical-align:middle"> ${x[0]} · ${x[3]}</button>`).join('')}<button class="btn sm g" onclick="gemSwap()">Trade 50 gems → 20 saddlebags</button>`;
+ if(tab=='shop')v.innerHTML=dshopHTML();
  if(tab=='guild'){const wb=warBoard(),war=`<div class="card"><h3>⚔️ Weekly Range War <small>ends in ${warLeft()}</small></h3>${wb.map((x,i)=>`<div class="row" style="${x.me?'color:#d07a00':''}"><span>#${i+1} ${x.n}${x.ai?'<span class="ai">AI</span>':''}</span><span>${x.s.toLocaleString()} pts</span></div>`).join('')}<small>Points: fights +1, territory bosses +25, claims +15, posse boss hits +3. Top 3 earn gems and saddlebags at week's end.</small></div>`;
   if(!S.guild){v.innerHTML=war+`<div class="card"><input id="gname" placeholder="Posse name"><button class="btn g" onclick="createG()">Start a Posse</button></div><h3>Posses recruiting</h3>${GN.map(g=>`<button class="btn sm b" onclick="joinG('${g}')">Join ${g} (${rnd(8,20)}/20)</button>`).join('')}<p style="font-size:11px">Simulated locally. Real posses need a backend.</p>`;return}
   const g=S.gboss,log=Object.entries(g.log||{}).sort((a,b)=>b[1]-a[1]).slice(0,5);
@@ -526,7 +531,7 @@ function autoSellCfg(){modal(`<h3 class="wt" style="text-align:center">Auto-sell
 let recentDrop=null;
 // ---- combat ----
 function heal(n){if(!B||n<=0)return 0;const h=Math.min(n,B.pmax-B.php);B.php+=h;return h}
-function tick_(){if(!B||!isFinite(B.e.hp)||!isFinite(B.php))startFight();const s=stats(),t=s.t;if(!(S.stage>=1))S.stage=1;
+function tick_(){if(B&&B.down)return;if(!B||!isFinite(B.e.hp)||!isFinite(B.php))startFight();const s=stats(),t=s.t;if(!(S.stage>=1))S.stage=1;
  if(S.auto)for(const k of SK)if(skReady(k)&&(k.id!='bribe'||B.e.boss))useSkill(k.id,1);
  B.acc=(B.acc||0)+1+t.as/100;let shots=0,healed=0;
  while(B.acc>=1&&shots<2&&B.e.hp>0){B.acc-=1;shots++;
@@ -541,7 +546,7 @@ function tick_(){if(!B||!isFinite(B.e.hp)||!isFinite(B.php))startFight();const s
   if(Math.random()<t.dg/100){float('MISS','m');drawB();return}
   let ed=Math.round(B.e.atk*(.8+Math.random()*.4));if(B.intim>now())ed=Math.round(ed*.4);
   if(Math.random()<t.bl/100){ed=Math.round(ed*.3);float('BLOCK '+ed,'b')}else{float(ed,'p');snd('hurt')}
-  B.php-=ed;if(B.php<=0){S.stage=Math.max(1,S.stage-1);B=null;save();startFight()}drawB()},300);drawB()}
+  B.php-=ed;if(B.php<=0){if(B.e.boss&&bossDown())return;S.stage=Math.max(1,S.stage-1);B=null;save();startFight()}drawB()},300);drawB()}
 let lastBoss='';
 function useSkill(id,quiet){const k=SK.find(x=>x.id==id);if(!B||!skReady(k))return false;const sm=1+stats().t.sd/100*1,bm=B.e.boss?1+stats().t.bs/100:1;
  if(id=='bribe'){if(S.gold<bribeCost())return false;S.gold-=bribeCost();const d=Math.round(B.e.max*.35*Math.min(sm,1.6));B.e.hp-=d;float('KABOOM '+d,'e',1);FX.dyn()}
@@ -706,6 +711,39 @@ function addLook(it){const b=$('mbody');if(!b||!b.querySelector||b.querySelector
  const ng=Object.assign({},S.gear,{[it.slot]:it}),a=renderLook(S.gear||{},0,1),n=renderLook(ng,0,1);if(!a||!n)return;
  cmp.insertAdjacentHTML('beforebegin',`<div class="lookp"><figure><img src="${a}"><figcaption>Now</figcaption></figure><span>➜</span><figure><img src="${n}"><figcaption>With ${NOUN[it.ic]||SLOTNM[it.slot]}</figcaption></figure></div>`)}
 if(typeof setInterval!='undefined')setInterval(()=>{try{setTier()}catch(e){}},600);
+
+// ===================== v10: diamond shop (in-game only, no real money) =====================
+const DC={bundle:25,bundleN:15,golden:60,reroll:r=>10+r*5,cap:n=>100*(n+1),capMax:5,revive:15,smithy:()=>50+S.forgeLvl*10};
+const dia=n=>`💎${n}`;
+function spend(n){if(S.gems<n){toast(`Need 💎${n}. Earn them from Daily Jobs, the Daily Envelope, bosses and Range War.`);return false}S.gems-=n;snd('coin');return true}
+function dshopHTML(){const c=S.bagX||0;
+ const row=(ic,t,d,cost,fn,dis)=>`<div class="dsh"><img src="${IMG[ic]}"><div><b>${t}</b><small>${d}</small></div><button class="btn sm g" onclick="${fn}" ${dis||S.gems<cost?'disabled':''}>${dia(cost)}</button></div>`;
+ return `<div class="card dhead"><b>💎 ${S.gems.toLocaleString()} Diamonds</b><small>Earn: Daily Jobs +15, Envelope, new bosses +5, Posse boss +10, Range War. In-game only.</small></div>
+ ${row('crate','Golden Saddlebag','Guaranteed Rare or better. 30% Epic, 8% Legendary',DC.golden,'goldBag()')}
+ ${row('crate','Saddlebag Bundle',`+${DC.bundleN} saddlebags, can go past the cap`,DC.bundle,'bagBundle()')}
+ ${row('n_case','Bigger Saddlebag',c>=DC.capMax?'Maxed out':`Bag cap ${hmax()} → ${hmax()+5} (${c}/${DC.capMax})`,c>=DC.capMax?0:DC.cap(c),'bagCap()',c>=DC.capMax)}
+ ${row('bench','Smithy Rush',`Level the smithy to Lv ${S.forgeLvl+1} now, no gold`,DC.smithy(),'smithyRush()')}
+ ${row('dia','Reroll Substats',`Keep or revert. ${dia(DC.reroll(1))} Uncommon to ${dia(DC.reroll(4))} Legendary`,DC.reroll(1),'rerollPick()')}
+ <div class="dfoot">🩹 <b>Second Wind ${dia(DC.revive)}</b>: offered when a boss drops you. Full HP, no fall back.</div>`}
+function goldBag(){if(!spend(DC.golden))return;const o=rollRar;rollRar=()=>{const r=Math.random();return r<.08?4:r<.38?3:2};let it;try{it=makeItem()}finally{rollRar=o}
+ it.gold=1;window._it=it;prog('crates');const cur=S.gear[it.slot],d=stats(it).power-stats().power,as=S.autoSell;S.autoSell=-1;try{drawPop(it,cur,d)}finally{S.autoSell=as}save();hud()}
+function bagBundle(){if(!spend(DC.bundle))return;S.hammers+=DC.bundleN;toast(`+${DC.bundleN} saddlebags`);save();render()}
+function bagCap(){const c=S.bagX||0;if(c>=DC.capMax||!spend(DC.cap(c)))return;S.bagX=c+1;toast(`Bag cap now ${hmax()}`);save();render()}
+function smithyRush(){if(!spend(DC.smithy()))return;S.forgeLvl++;snd('lvl');save();render()}
+function rerollPick(){const g=SLOTS.filter(s=>S.gear[s]&&S.gear[s].r>0);if(!g.length){toast('Equip Uncommon or better gear first');return}
+ modal(`<h3 class="wt" style="text-align:center">Reroll which?</h3><div class="grid gear">${g.map(s=>{const i=S.gear[s];return `<div class="tile r${i.r}" onclick="closeM();setTimeout(()=>reroll('${s}'),200)"><img src="${IMG[i.ic]}"><span class="lv ol">${dia(DC.reroll(i.r))}</span></div>`}).join('')}</div><button class="btn sm" onclick="closeM()">Cancel</button>`)}
+function reroll(sl){const it=S.gear[sl];if(!it||!it.r||!spend(DC.reroll(it.r)))return;const old=JSON.parse(JSON.stringify(it)),p0=stats().power;rollSubs(it);const p1=stats().power;window._rr=[sl,old];save();
+ modal(`<h3 class="wt" style="text-align:center;font-size:21px;margin:0 0 4px">Substats Rerolled</h3><div class="cmp">${card(it,old,'New roll')}${card(old,undefined,'Before')}</div><div class="pchg ${p1>=p0?'up':'dn'}">Power ${p1>=p0?'+':''}${(p1-p0).toLocaleString()}</div>
+ <div class="b2"><button class="btn g" onclick="rrDone(0)">Keep new</button><button class="btn" onclick="rrDone(1)">Revert</button></div><button class="btn sm b" onclick="rrDone(0);setTimeout(()=>reroll('${sl}'),200)" ${S.gems<DC.reroll(it.r)?'disabled':''}>Keep & reroll again ${dia(DC.reroll(it.r))}</button>`,0,1);hud()}
+function rrDone(rev){const r=window._rr;if(rev&&r)S.gear[r[0]]=r[1];window._rr=null;closeM();save();render()}
+let _rvT=0;
+function bossDown(){if(S.gems<DC.revive||B.revived)return false;B.down=1;clearTimeout(_rvT);_rvT=setTimeout(()=>rvGo(0),9000);
+ modal(`<h3 class="wt" style="text-align:center;font-size:22px">${B.e.name.replace('WANTED: ','')} dropped you</h3><p style="text-align:center">Boss HP left: ${Math.max(0,Math.round(B.e.hp)).toLocaleString()} / ${B.e.max.toLocaleString()}</p><button class="btn g" onclick="rvGo(1)">🩹 Second Wind (full HP) ${dia(DC.revive)}</button><button class="btn sm" onclick="rvGo(0)">Fall back a trail</button><small style="display:block;text-align:center">Auto falls back in 9s</small>`,0,1);return true}
+function rvGo(y){clearTimeout(_rvT);if(!B||!B.down){if($('modal').style.display=='flex'&&/dropped you/.test($('modal').innerHTML))closeM();return}
+ if(y&&spend(DC.revive)){B.php=B.pmax;B.down=0;B.revived=1;closeM();FX.lvl&&FX.lvl();save();hud();drawB();return}
+ closeM();S.stage=Math.max(1,S.stage-1);B=null;save();startFight()}
+// first clear of each territory boss pays 5 diamonds
+const _tk10=tick_;tick_=function(){const b=B&&B.e&&B.e.boss&&S.stage>=S.best?S.stage:0;_tk10();if(b&&S.stage>b){S.gems+=5;toast('+💎5 boss bounty');hud()}};
 
 function boot(){[['pbar','ptrail'],['ebar','etrail']].forEach(([b,t])=>{const e=$(b);if(e&&!$(t)){const x=document.createElement('i');x.id=t;x.className='trail';e.parentNode.insertBefore(x,e)}});ANIM.set('hero','hero');$('av').style.backgroundImage=`url(${IMG.avatar})`;$('icash').src=IMG.cash;$('idia').src=IMG.dia;$('icrate').src=IMG.crate;
 document.querySelectorAll('nav img').forEach(i=>i.src=IMG[i.dataset.i]);
