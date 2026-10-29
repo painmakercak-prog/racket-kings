@@ -1,2 +1,5 @@
-# racket-kings
-Racket Kings - mafia-style forge RPG prototype
+# Racket Kings
+
+Mafia-style forge RPG prototype. Play: https://painmakercak-prog.github.io/racket-kings/
+
+Demo only: no real payments; AI players are labeled AI.
