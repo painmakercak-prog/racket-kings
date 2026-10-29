@@ -85,6 +85,29 @@ body{position:fixed;top:0;bottom:0;left:0;right:0;width:100%;height:auto!importa
 .fx.ghost{z-index:2;object-fit:contain;transform-origin:50% 100%}
 .sk img.ski{width:34px;height:auto;display:block;margin:2px auto 0;transform:scaleX(-1) rotate(-10deg);filter:drop-shadow(0 2px 0 #0008)}
 .dmg{animation-fill-mode:forwards}
+
+:root{--ah:clamp(188px,calc(100dvh - 450px),350px)}
+#arena{height:var(--ah)!important;min-height:0!important;flex:none}
+#hero img,#foe img{height:min(140px,calc(var(--ah)*.40))!important}#foe.boss img{height:min(170px,calc(var(--ah)*.49))!important}
+.unit{bottom:calc(var(--ah)*.2)!important}
+#skills{bottom:2px}.sk{width:48px;height:48px;font-size:20px}.sk img.ski{width:28px}.sk small{bottom:1px;font-size:10px}
+#arena .info{font-size:16px;top:4px}#arena .srv{top:25px;z-index:7}
+.dmg{z-index:5}
+.hb{position:relative;height:10px}.hb i{position:relative;z-index:1;transition:width .3s cubic-bezier(.2,.8,.3,1)}
+.hb i.trail{position:absolute;left:0;top:0;bottom:0;z-index:0;background:#fff8!important;transition:width .6s ease-in .25s}
+#arena.hs .unit img,#arena.hs .unit{animation-play-state:paused!important}
+#arena.hs{filter:contrast(1.15)}
+.fx.ring{width:100px;height:100px;border-radius:50%;border:5px solid #ffe066;box-shadow:0 0 18px #ffb020,inset 0 0 12px #ffb020}
+.fly{position:fixed;z-index:20;pointer-events:none;font-size:14px;display:flex;align-items:center;gap:2px;will-change:transform,opacity}.fly img{height:22px}
+#panel{padding:6px;min-height:0}
+.grid.gear{grid-template-columns:repeat(6,1fr);gap:4px}.gear .tile{border-width:2px;border-radius:9px}.gear .tile .lv{font-size:10px;bottom:1px}.gear .tile img{width:70%;margin-top:-8px}
+.forge{margin:5px 0;gap:6px}.forge img{width:min(78px,20vw)}
+.btn.big{font-size:18px;padding:9px;margin:0 0 5px}.forge .btn.sm{padding:6px;margin:0}
+.chatstrip{margin:4px 0;padding:4px 8px}
+.card.smithy{padding:6px 8px;margin:4px 0}.smithy .odds{display:block;font-size:10.5px;line-height:1.3}.smithy .btn{margin:4px 0 2px}.smithy .tip{font-size:10px;opacity:.75}
+nav img{height:30px}nav button{padding:3px 0 2px;font-size:10.5px}
+#top{padding-top:max(4px,env(safe-area-inset-top));padding-bottom:4px}
+@media (max-height:700px){.smithy .tip{display:none}.btn.big{font-size:16px;padding:7px}nav img{height:26px}}
 </style></head><body>
 <div id="top"><div class="av" id="av"></div>
 <div class="pill ol"><img id="icash"><b id="gd"></b></div><div class="pill ol"><img id="idia"><b id="gm"></b></div><button id="mute" onclick="toggleMute()">🔊</button><div class="pill ol"><img id="icrate"><b><span id="hm"></span>/<span id="hmax"></span></b></div></div>
@@ -153,7 +176,7 @@ function snd(k){if(S.mute)return;try{AC=AC||new (window.AudioContext||window.web
  g.gain.setValueAtTime(v,t+o);g.gain.exponentialRampToValueAtTime(.001,t+o+d);os.connect(g);g.connect(AC.destination);os.start(t+o);os.stop(t+o+d+.02)}}catch(e){}}
 function toggleMute(){S.mute=!S.mute;save();hud();snd('click')}
 // ---------- ui ----------
-function hud(){$('hm').textContent=S.hammers;$('hmax').textContent=hmax();$('gd').textContent=S.gold.toLocaleString();$('gm').textContent=S.gems;$('pw').textContent=stats().power.toLocaleString();
+function hud(){{const full=S.hammers>=hmax();$('hm').textContent=full?Math.max(S.hammers,hmax()):S.hammers;$('hmax').textContent=full?'FULL':hmax();$('hmax').style.color=full?'#7f6':''}$('gd').textContent=S.gold.toLocaleString();$('gm').textContent=S.gems;$('pw').textContent=stats().power.toLocaleString();
  $('mute').textContent=S.mute?'🔇':'🔊';const need=xpNeed();$('hlv').innerHTML=`Hero Lv ${S.hero.lvl}<div class="xb"><i style="width:${S.hero.xp/need*100}%"></i></div>`;drawSkills()}
 function modal(h){$('mbody').innerHTML=h;$('modal').style.display='flex'}
 function closeM(){$('modal').style.display='none'}
@@ -178,7 +201,7 @@ const xpNeed=()=>Math.round(25*Math.pow(S.hero.lvl,1.6));
 const SK=[{id:'drive',n:'Quick Draw',e:'🔫',lv:2,cd:20,d:'Fan the hammer for 6x ATK'},{id:'bribe',n:'Dynamite',e:'🧨',lv:4,cd:35,d:'Spend gold, blast off 35% of a foe\'s HP'},{id:'intim',n:'Lasso',e:'🪢',lv:6,cd:30,d:'Rope the foe: hits 60% softer for 10s'}];
 const bribeCost=()=>Math.round(10*Math.pow(1.12,S.stage));
 function gainXP(n){S.hero.xp+=n;while(S.hero.xp>=xpNeed()){S.hero.xp-=xpNeed();S.hero.lvl++;snd('lvl');const u=SK.find(k=>k.lv==S.hero.lvl);if(typeof document!='undefined')flash(u?`Hero Lv ${S.hero.lvl}! Unlocked ${u.n}!`:`Hero Lv ${S.hero.lvl}!`)}}
-function flash(t){const a=$('arena'),d=document.createElement('div');d.className='dmg ol';d.style.cssText='left:0;right:0;text-align:center;top:40%;font-size:24px;color:#ffd23a';d.textContent=t;a.appendChild&&a.appendChild(d);const rm=()=>{if(d.parentNode)d.remove()};d.addEventListener('animationend',rm);setTimeout(rm,1000)}
+function flash(t){const a=$('arena'),d=document.createElement('div');d.className='dmg ol';d.style.cssText='left:0;right:0;text-align:center;top:44%;font-size:22px;color:#ffd23a';d.textContent=t;FX.lvl();a.appendChild&&a.appendChild(d);const rm=()=>{if(d.parentNode)d.remove()};d.addEventListener('animationend',rm);setTimeout(rm,1000)}
 const now=()=>Date.now();
 function skReady(k){return S.hero.lvl>=k.lv&&(S.cd[k.id]||0)<=now()}
 function useSkill(id,quiet){const k=SK.find(x=>x.id==id);if(!B||!skReady(k))return false;
@@ -187,7 +210,7 @@ function useSkill(id,quiet){const k=SK.find(x=>x.id==id);if(!B||!skReady(k))retu
  if(id=='intim'){B.intim=now()+10000;float('SCARED!','e',0);FX.lasso()}
  S.cd[id]=now()+k.cd*1000;prog('skills');if(!quiet)snd('skill');drawSkills();drawB();return true}
 function drawSkills(){const c=$('skills');if(!c||!c.style)return;c.innerHTML=SK.map(k=>{const lock=S.hero.lvl<k.lv,left=Math.max(0,(S.cd[k.id]||0)-now());
- return `<button class="sk ${lock?'lock':''}" onclick="useSkill('${k.id}')" title="${k.d}">${k.id=='drive'?`<img class="ski" src="${IMG.i_pistol}">`:k.e}<small class="ol">${lock?'Lv '+k.lv:left?Math.ceil(left/1000)+'s':k.n}</small>${left&&!lock?`<span class="cd" style="height:${left/(k.cd*1000)*100}%"></span>`:''}</button>`}).join('')}
+ return `<button class="sk ${lock?'lock':''}" onclick="useSkill('${k.id}')" title="${k.d}">${k.id=='drive'?`<img class="ski" src="${IMG.i_pistol}">`:k.e}<small class="ol">${lock?'Lv '+k.lv:left?Math.ceil(left/1000)+'s':''}</small>${left&&!lock?`<span class="cd" style="height:${left/(k.cd*1000)*100}%"></span>`:''}</button>`}).join('')}
 // ---------- FX (WAAPI, transform/opacity only) ----------
 const FX=(()=>{const A=()=>$('arena'),ok=el=>el&&el.animate;
  function pos(el){const a=A().getBoundingClientRect(),r=el.getBoundingClientRect();return{x:r.left-a.left,y:r.top-a.top,w:r.width,h:r.height}}
@@ -202,7 +225,7 @@ const FX=(()=>{const A=()=>$('arena'),ok=el=>el&&el.animate;
  function hurt(el,dir,big){if(!ok(el))return;const k=big?16:9;el.animate([{transform:'translateX(0)'},{transform:`translateX(${dir*k}px) rotate(${dir*4}deg)`},{transform:`translateX(${-dir*k*.4}px)`},{transform:`translateX(${dir*k*.6}px)`},{transform:'translateX(0)'}],{duration:big?320:240});
   const im=el.querySelector('img');if(im)anim(el,'hit')}
  function shake(n){const a=A();if(ok(a))a.animate([{transform:'translate(0,0)'},{transform:`translate(${n}px,${-n}px)`},{transform:`translate(${-n}px,${n*.5}px)`},{transform:`translate(${n*.5}px,${n}px)`},{transform:'translate(0,0)'}],{duration:260})}
- function shoot(c,kill){const h=$('hero');if(!ok(h))return;
+ function shoot(c,kill){const h=$('hero');if(!ok(h))return;if(c)stop(90);
   h.animate([{transform:'translateX(0)'},{transform:'translateX(-8px) rotate(-3deg)',offset:.25},{transform:'translateX(4px)',offset:.6},{transform:'translateX(0)'}],{duration:260,easing:'ease-out'});
   gun(c);setTimeout(()=>{hurt($('foe'),1,c);if(c)shake(6)},60);if(kill)setTimeout(die,120)}
  function die(){const f=$('foeimg'),a=A();if(!ok(f)||!a)return;const p=pos(f),gh=document.createElement('img');gh.src=f.src;gh.className='fx ghost';
@@ -223,7 +246,14 @@ const FX=(()=>{const A=()=>$('arena'),ok=el=>el&&el.animate;
   spark('rope',sx,sy,'width:'+L+'px;transform-origin:0 50%',[{transform:`rotate(${ang}deg) scaleX(0)`},{transform:`rotate(${ang}deg) scaleX(1)`,offset:.35},{transform:`rotate(${ang}deg) scaleX(1)`,offset:.8},{transform:`rotate(${ang}deg) scaleX(1)`,opacity:0}],900);
   setTimeout(()=>{spark('loop',tx-35,ty-12,'',[{transform:'scale(1.6)',opacity:0},{transform:'scale(1)',opacity:1,offset:.3},{transform:'scale(.8,1)',opacity:1,offset:.8},{transform:'scale(.8,1)',opacity:0}],700);
    const fo=$('foe');if(ok(fo))fo.animate([{transform:'none'},{transform:'translateX(-26px) rotate(-6deg)'},{transform:'translateX(-18px) rotate(4deg)'},{transform:'none'}],{duration:560})},300)}
- return{shoot,foeAtk,enter,flurry,dyn,lasso,die}})();
+ function stop(ms){const a=A();if(!a)return;a.classList.add('hs');setTimeout(()=>a.classList.remove('hs'),ms)}
+ function fly(src,txt,from,to){const r=from.getBoundingClientRect(),t=to.getBoundingClientRect(),d=document.createElement('div');d.className='fly ol';d.innerHTML=`<img src="${src}">${txt}`;
+  d.style.left=(r.left+r.width/2-20)+'px';d.style.top=(r.top+r.height*.3)+'px';document.body.appendChild(d);const dx=t.left+t.width/2-(r.left+r.width/2),dy=t.top-(r.top+r.height*.3);
+  const rm=()=>{if(d.parentNode)d.remove()};if(d.animate){d.animate([{transform:'translate(0,0) scale(.6)',opacity:0},{transform:'translate(0,-30px) scale(1.1)',opacity:1,offset:.25},{transform:`translate(${dx}px,${dy}px) scale(.5)`,opacity:.9}],{duration:750,easing:'cubic-bezier(.5,0,.8,.6)',fill:'forwards'}).onfinish=()=>{rm();const p=to.parentNode;if(p&&p.animate)p.animate([{transform:'scale(1)'},{transform:'scale(1.12)'},{transform:'scale(1)'}],{duration:220})}}setTimeout(rm,900)}
+ function loot(g,h){const f=$('foeimg');if(!f||!document.body.appendChild)return;fly(IMG.cash,'+'+g.toLocaleString(),f,$('gd'));if(h)setTimeout(()=>fly(IMG.crate,'+'+h,f,$('hm')),120)}
+ function lvl(){const h=$('heroimg');if(!h||!A())return;const p=pos(h);spark('ring',p.x+p.w/2-50,p.y+p.h/2-50,'',[{transform:'scale(.2)',opacity:1},{transform:'scale(1.6)',opacity:0}],700);
+  for(let i=0;i<10;i++){const a2=i/10*6.28;spark('chip',p.x+p.w/2,p.y+p.h/2,'',[{transform:'translate(0,0)',opacity:1},{transform:`translate(${Math.cos(a2)*70}px,${Math.sin(a2)*70}px) scale(.4)`,opacity:0}],650)}}
+ return{shoot,foeAtk,enter,flurry,dyn,lasso,die,loot,lvl,stop}})();
 // ---------- battle ----------
 let B=null;
 function enemy(st=S.stage){const di=distOf(st),D=DIST[di],boss=st%10==0,m=Math.pow(1.14,st),f=D.foes[(st-1)%3];
@@ -235,14 +265,14 @@ function tick_(){if(!B||!isFinite(B.e.hp)||!isFinite(B.php))startFight();const s
  if(S.auto)for(const k of SK)if(skReady(k)&&(k.id!='bribe'||B.e.boss))useSkill(k.id,1);
  const pd=Math.round(s.atk*(.85+Math.random()*.3)),crit=Math.random()<.12,dd=crit?pd*2:pd;B.e.hp-=dd;FX.shoot(crit,B.e.hp<=0);float(dd,'e',crit);snd(crit?'crit':'hit');
  if(B.e.hp<=0){const boss=B.e.boss,g=Math.round(8*Math.pow(1.1,S.stage)*(boss?5:1)),h=boss?8:(Math.random()<.5?1:0);
-  S.gold+=g;S.hammers=Math.min(S.hammers+h,hmax()+50);gainXP(Math.round((4+S.stage)*(boss?5:1)));prog('kills');warPts(boss?25:1);
+  FX.loot(g,h);S.gold+=g;S.hammers=Math.max(S.hammers,Math.min(S.hammers+h,hmax()));gainXP(Math.round((4+S.stage)*(boss?5:1)));prog('kills');warPts(boss?25:1);
   if(boss){prog('boss');snd('win');if(S.guild)aiReact('boss');const nd=distOf(S.stage+1);if(nd!=distOf(S.stage)&&S.stage+1>S.best)setTimeout(()=>modal(`<h3 class="ol" style="text-align:center;font-size:22px">New Territory!</h3><img src="${IMG[DIST[nd].bg]}" style="width:100%;border:3px solid #222;border-radius:12px"><p style="text-align:center">${DIST[nd].n} is open. New gangs, new boss, new claims.</p><button class="btn g" onclick="closeM()">Let's go</button>`),300)}
   S.stage++;S.best=Math.max(S.best,S.stage);B=null;save();hud();if(tab=='battle'||tab=='turf')render();setTimeout(startFight,0);return}
  setTimeout(()=>{if(!B)return;let ed=Math.round(B.e.atk*(.8+Math.random()*.4));if(B.intim>now())ed=Math.round(ed*.4);B.php-=ed;FX.foeAtk();float(ed,'p');snd('hurt');
   if(B.php<=0){S.stage=Math.max(1,S.stage-1);B=null;save();startFight()}drawB()},300);drawB()}
 function float(n,who,c){const a=$('arena');if(!a||!a.appendChild)return;const d=document.createElement('div');d.className='dmg ol'+(c?' c':'')+(who=='p'?' p':'');d.textContent=(c&&typeof n=='number'?'CRIT ':'')+n;
- d.style.left=(who=='e'?55:14)+rnd(0,14)+'%';d.style.top=rnd(22,38)+'%';a.appendChild(d);const rm=()=>{if(d.parentNode)d.remove()};d.addEventListener('animationend',rm);d.addEventListener('webkitAnimationEnd',rm);setTimeout(rm,1000)}
-function drawB(){if(!B)return;$('pbar').style.width=Math.max(0,B.php/B.pmax*100)+'%';$('ebar').style.width=Math.max(0,B.e.hp/B.e.max*100)+'%'}
+ d.style.left=(who=='e'?55:14)+rnd(0,14)+'%';d.style.top=rnd(40,54)+'%';a.appendChild(d);const rm=()=>{if(d.parentNode)d.remove()};d.addEventListener('animationend',rm);d.addEventListener('webkitAnimationEnd',rm);setTimeout(rm,1000)}
+function drawB(){if(!B)return;const p=Math.max(0,B.php/B.pmax*100)+'%',e=Math.max(0,B.e.hp/B.e.max*100)+'%';$('pbar').style.width=p;$('ebar').style.width=e;const tp=$('ptrail'),te=$('etrail');if(tp)tp.style.width=p;if(te)te.style.width=e}
 let curBg='';
 function drawFoe(){const e=B?B.e:enemy(),D=DIST[e.di];$('foeimg').src=IMG[e.img];$('foename').textContent=e.name;$('foe').className='unit'+(e.boss?' boss':'');
  $('stg').innerHTML=`${D.n} · Trail ${(S.stage-1)%10+1}/10${e.boss?' <span style="color:#ff5a4a">BOSS</span>':''}`;if(curBg!=D.bg){curBg=D.bg;$('arena').style.backgroundImage=`url(${IMG[D.bg]})`}}
@@ -314,11 +344,11 @@ function render(){hud();drawFoe();const v=$('panel'),s=stats();
  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t==tab));
  if(tab=='forge'){const w=rarW(),t=w.reduce((a,b)=>a+b);
   v.innerHTML=`<div class="grid gear">${SLOTS.map(sl=>tileHTML(S.gear[sl],sl,1)).join('')}</div>
-  <div class="forge"><img src="${IMG.bench}"><div style="flex:1"><button class="btn" style="font-size:20px;padding:14px" onclick="forge()" ${S.hammers<1?'disabled':''}>Open Saddlebag <img src="${IMG.crate}" style="height:24px;width:auto;vertical-align:middle"> 1</button>
+  <div class="forge"><img src="${IMG.bench}"><div style="flex:1"><button class="btn big" onclick="forge()" ${S.hammers<1?'disabled':''}>Open Saddlebag <img src="${IMG.crate}" style="height:24px;width:auto;vertical-align:middle"> 1</button>
   <button class="btn sm ${S.auto?'g':'b'}" onclick="toggleAuto()">Auto: ${S.auto?'ON':'OFF'}</button></div></div>
   <div class="chatstrip" id="strip"></div>
-  <div class="card">Smithy Lv ${S.forgeLvl} · ATK ${s.atk} · HP ${s.hp}<br><small>${RAR.map((r,i)=>`<span class="rt${i}">${r} ${(w[i]/t*100).toFixed(1)}%</span>`).join(' · ')}</small>
-  <button class="btn sm g" onclick="upgrade()" ${S.gold<upCost()?'disabled':''}>Upgrade Smithy ($${upCost().toLocaleString()})</button><small>Tap gear for details. +1 saddlebag every 20s (max ${hmax()}). Auto equips upgrades, fences the rest and fires abilities.</small></div>`;drawStrip()}
+  <div class="card smithy"><div class="srow"><span>Smithy Lv ${S.forgeLvl} · ATK ${s.atk.toLocaleString()} · HP ${s.hp.toLocaleString()}</span></div><small class="odds">${RAR.map((r,i)=>`<span class="rt${i}">${r} ${(w[i]/t*100).toFixed(1)}%</span>`).join(' · ')}</small>
+  <button class="btn sm g" onclick="upgrade()" ${S.gold<upCost()?'disabled':''}>Upgrade Smithy ($${upCost().toLocaleString()})</button><small class="tip">Tap gear for details. +1 bag / 20s (max ${hmax()}).</small></div>`;drawStrip()}
  if(tab=='battle'){const e=B?B.e:enemy(),D=DIST[e.di];
   v.innerHTML=`<div class="card"><h3>Daily Jobs <button class="btn sm ${S.daily.claimed?'b':'g'}" style="display:inline;width:auto;margin:0;float:right;padding:4px 8px" onclick="showDaily()">🎁 Day ${S.daily.streak}${S.daily.claimed?'':' <span class=badge>!</span>'}</button></h3>
   ${S.mis.list.map((m,i)=>`<div class="mis" style="margin:6px 0"><span style="width:44%">${m.txt}</span><div class="pb"><i style="width:${m.p/m.n*100}%"></i></div><button class="btn sm ${m.done?'b':'g'}" style="width:70px;margin:0;padding:4px" onclick="claimMis(${i})" ${m.p<m.n||m.done?'disabled':''}>${m.done?'Done':m.p+'/'+m.n}</button></div>`).join('')}<small>Each job: +15 💎 +10 saddlebags</small></div>
@@ -346,7 +376,7 @@ function render(){hud();drawFoe();const v=$('panel'),s=stats();
   <p style="font-size:11px">Population and players are simulated.</p>`}}
 function sendChat(){const i=$('cmsg');if(!i.value)return;say('You',0,i.value.slice(0,100));i.value='';save();
  if(S.members.length)setTimeout(()=>{say(pick(S.members).name,1,pick(['ha true','same','you said it','yeehaw','hit the outlaw king when you can','nice']));save()},rnd(1500,4000))}
-function boot(){$('heroimg').src=IMG.hero;$('av').style.backgroundImage=`url(${IMG.avatar})`;$('icash').src=IMG.cash;$('idia').src=IMG.dia;$('icrate').src=IMG.crate;
+function boot(){[['pbar','ptrail'],['ebar','etrail']].forEach(([b,t])=>{const e=$(b);if(e&&!$(t)){const x=document.createElement('i');x.id=t;x.className='trail';e.parentNode.insertBefore(x,e)}});$('heroimg').src=IMG.hero;$('av').style.backgroundImage=`url(${IMG.avatar})`;$('icash').src=IMG.cash;$('idia').src=IMG.dia;$('icrate').src=IMG.crate;
 document.querySelectorAll('nav img').forEach(i=>i.src=IMG[i.dataset.i]);
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;snd('click');render()});
 $('modal').onclick=e=>{if(e.target.id=='modal')closeM()};
