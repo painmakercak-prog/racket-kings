@@ -1,5 +1,7 @@
-# Racket Kings
+# Cowboy Grinder (Mmhmm Honey)
 
-Mafia-style forge RPG prototype. Play: https://painmakercak-prog.github.io/racket-kings/
+A Wild West idle RPG prototype: open saddlebags for gear, auto-duel outlaws across 6 frontier territories, hunt WANTED bounties, ride with a posse, and hold claims.
 
-Demo only: no real payments; AI players are labeled AI.
+Play: https://painmakercak-prog.github.io/racket-kings/
+
+AI players in-game are simulated and tagged AI. Shop is demo-only (no real payments).
